@@ -3,8 +3,11 @@
     --card-bg: rgba(30, 41, 59, 0.7);
     --text-primary: #f8fafc;
     --text-secondary: #94a3b8;
+    --metro-a: #00A562;
+    --metro-b: #F7B200;
+    --metro-c: #ef4444;
     --accent: #ef4444;
-    /* Metro C is red */
+    /* Default accent */
     --accent-hover: #dc2626;
     --glass-border: rgba(255, 255, 255, 0.1);
 }
@@ -50,11 +53,74 @@ header {
 header h1 {
     font-size: 3.5rem;
     font-weight: 700;
-    background: linear-gradient(to right, #fff, #ef4444);
+    background: linear-gradient(to right, #fff, var(--metro-c));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    text-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+    transition: background 0.5s;
 }
+
+/* --- Search --- */
+.search-container {
+    position: relative;
+    max-width: 450px;
+    margin: 1.5rem auto 0;
+    z-index: 20;
+}
+
+#station-search {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    border-radius: 20px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    color: #fff;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.1rem;
+    outline: none;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+#station-search:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+}
+
+#search-results {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 0;
+    right: 0;
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    box-shadow: 0 16px 32px 0 rgba(0, 0, 0, 0.5);
+    list-style: none;
+    max-height: 250px;
+    overflow-y: auto;
+    text-align: left;
+}
+
+.search-result-item {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--glass-border);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+.search-result-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* -------------- */
 
 .glassmorphism {
     background: var(--card-bg);
@@ -64,67 +130,6 @@ header h1 {
     border-radius: 20px;
     padding: 2.5rem;
     box-shadow: 0 16px 32px 0 rgba(0, 0, 0, 0.5);
-}
-
-.card h2 {
-    font-size: 1.8rem;
-    margin-bottom: 1rem;
-    color: #fff;
-}
-
-.card p {
-    color: var(--text-secondary);
-    margin-bottom: 1.5rem;
-    line-height: 1.6;
-    font-size: 1.1rem;
-}
-
-.tutorial ol {
-    margin-left: 1.5rem;
-    margin-bottom: 2rem;
-    color: var(--text-secondary);
-    line-height: 1.8;
-    font-size: 1.05rem;
-}
-
-.tutorial li {
-    margin-bottom: 0.5rem;
-}
-
-.tutorial a,
-footer a {
-    color: var(--accent);
-    text-decoration: none;
-    transition: color 0.3s;
-    font-weight: 600;
-}
-
-.tutorial a:hover,
-footer a:hover {
-    color: #fca5a5;
-}
-
-.input-group {
-    display: flex;
-    gap: 1rem;
-}
-
-input {
-    flex: 1;
-    padding: 1rem 1.5rem;
-    border-radius: 12px;
-    border: 1px solid var(--glass-border);
-    background: rgba(255, 255, 255, 0.05);
-    color: #fff;
-    font-family: 'Outfit', sans-serif;
-    font-size: 1.1rem;
-    outline: none;
-    transition: border-color 0.3s, box-shadow 0.3s;
-}
-
-input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
 }
 
 button {
@@ -153,14 +158,12 @@ button:hover {
     display: flex;
     gap: 2rem;
     animation: fadeIn 0.8s ease-out;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 @media (max-width: 768px) {
     .directions-container {
-        flex-direction: column;
-    }
-
-    .input-group {
         flex-direction: column;
     }
 
@@ -171,6 +174,8 @@ button:hover {
 
 .direction-column {
     flex: 1;
+    min-width: 300px;
+    max-width: 420px;
     background: var(--card-bg);
     border: 1px solid var(--glass-border);
     border-radius: 20px;
@@ -180,12 +185,13 @@ button:hover {
 }
 
 .direction-header {
-    background: rgba(239, 68, 68, 0.15);
+    background: rgba(255, 255, 255, 0.05);
     padding: 1.2rem;
     text-align: center;
     font-weight: 700;
     font-size: 1.3rem;
     border-bottom: 1px solid var(--glass-border);
+    /* dynamiczna b. */
     text-transform: uppercase;
     letter-spacing: 1px;
 }
@@ -230,7 +236,6 @@ button:hover {
 }
 
 .time-left .highlighted {
-    color: var(--accent);
     animation: pulse 1.5s infinite;
 }
 

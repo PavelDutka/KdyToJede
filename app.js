@@ -1,14 +1,33 @@
-const DATA_CONTAINER = document.getElementById('data-container');
-const DEPARTURES_LETNANY = document.getElementById('departures-letnany');
-const DEPARTURES_HAJE = document.getElementById('departures-haje');
-const LOADER = document.getElementById('loader');
-const REFRESH_BTN = document.getElementById('refresh-btn');
-
 // Zde je API klíč napevno, jelikož se jedná o privátní repozitář
 const apiKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NDg0NywiaWF0IjoxNzcxODY2MjA4LCJleHAiOjExNzcxODY2MjA4LCJpc3MiOiJnb2xlbWlvIiwianRpIjoiYTRkNWNmOTItMDQzMC00MjZiLTlhNWMtMTk2YmNiYzlkZThkIn0.lIpLQpWR-AVVgjYTqN1jxuzCTQ8Mx_3Cg3Q03adTSOA';
+
+const DATA_CONTAINER = document.getElementById('data-container');
+const DIRECTIONS_WRAPPER = document.getElementById('directions-wrapper');
+const LOADER = document.getElementById('loader');
+const REFRESH_BTN = document.getElementById('refresh-btn');
+const SEARCH_INPUT = document.getElementById('station-search');
+const SEARCH_RESULTS = document.getElementById('search-results');
+const STATION_TITLE = document.getElementById('station-title');
+
 let fetchInterval = null;
+let currentStation = 'Chodov'; // výchozí stanice
+
+// Seznam stanic metra pro rychlé lokální našeptávání
+const metroStations = [
+    // Linka A
+    "Nemocnice Motol", "Petřiny", "Nádraží Veleslavín", "Bořislavka", "Dejvická", "Hradčanská", "Malostranská", "Staroměstská", "Můstek", "Muzeum", "Náměstí Míru", "Jiřího z Poděbrad", "Flora", "Želivského", "Strašnická", "Skalka", "Depo Hostivař",
+    // Linka B
+    "Zličín", "Stodůlky", "Luka", "Lužiny", "Hůrka", "Nové Butovice", "Jinonice", "Radlická", "Smíchovské nádraží", "Anděl", "Karlovo náměstí", "Národní třída", "Náměstí Republiky", "Florenc", "Křižíkova", "Invalidovna", "Palmovka", "Českomoravská", "Vysočanská", "Kolbenova", "Hloubětín", "Rajská zahrada", "Černý Most",
+    // Linka C
+    "Letňany", "Prosek", "Střížkov", "Ládví", "Kobylisy", "Nádraží Holešovice", "Vltavská", "Hlavní nádraží", "I. P. Pavlova", "Vyšehrad", "Pražského povstání", "Pankrác", "Budějovická", "Kačerov", "Roztyly", "Chodov", "Opatov", "Háje"
+];
+
+// Odstranění duplicit (přestupní stanice jako Muzeum, Můstek, Florenc)
+const uniqueStations = [...new Set(metroStations)].sort((a, b) => a.localeCompare(b, 'cs'));
 
 function init() {
+    setupSearch();
+    updateTitleColors(currentStation);
     fetchDepartures();
 
     // Auto-refresh every 20 seconds
@@ -19,16 +38,85 @@ function init() {
     setInterval(updateCountdown, 1000);
 }
 
+function setupSearch() {
+    SEARCH_INPUT.addEventListener('input', (e) => {
+        const val = e.target.value.toLowerCase();
+        SEARCH_RESULTS.innerHTML = '';
+        if (!val) {
+            SEARCH_RESULTS.classList.add('hidden');
+            return;
+        }
+
+        const matches = uniqueStations.filter(s => s.toLowerCase().includes(val));
+        if (matches.length > 0) {
+            matches.forEach(match => {
+                const li = document.createElement('li');
+                li.className = 'search-result-item';
+                li.textContent = match;
+                li.addEventListener('click', () => {
+                    selectStation(match);
+                });
+                SEARCH_RESULTS.appendChild(li);
+            });
+            SEARCH_RESULTS.classList.remove('hidden');
+        } else {
+            SEARCH_RESULTS.classList.add('hidden');
+        }
+    });
+
+    // Skrytí když se klikne vedle
+    document.addEventListener('click', (e) => {
+        if (!SEARCH_INPUT.contains(e.target) && !SEARCH_RESULTS.contains(e.target)) {
+            SEARCH_RESULTS.classList.add('hidden');
+        }
+    });
+}
+
+function selectStation(station) {
+    currentStation = station;
+    SEARCH_INPUT.value = '';
+    SEARCH_RESULTS.classList.add('hidden');
+    STATION_TITLE.textContent = `Stanice ${station}`;
+    updateTitleColors(station);
+
+    // Reset columns for layout transition
+    DIRECTIONS_WRAPPER.innerHTML = '<div style="width:100%;text-align:center;padding:2rem;"><div class="loader" style="position:static; transform:none; display:inline-block;">Načítám data...</div></div>';
+
+    fetchDepartures();
+}
+
+function updateTitleColors(station) {
+    let lines = [];
+    if (["Nemocnice Motol", "Petřiny", "Nádraží Veleslavín", "Bořislavka", "Dejvická", "Hradčanská", "Malostranská", "Staroměstská", "Můstek", "Muzeum", "Náměstí Míru", "Jiřího z Poděbrad", "Flora", "Želivského", "Strašnická", "Skalka", "Depo Hostivař"].includes(station)) lines.push('A');
+    if (["Zličín", "Stodůlky", "Luka", "Lužiny", "Hůrka", "Nové Butovice", "Jinonice", "Radlická", "Smíchovské nádraží", "Anděl", "Karlovo náměstí", "Národní třída", "Můstek", "Náměstí Republiky", "Florenc", "Křižíkova", "Invalidovna", "Palmovka", "Českomoravská", "Vysočanská", "Kolbenova", "Hloubětín", "Rajská zahrada", "Černý Most"].includes(station)) lines.push('B');
+    if (["Letňany", "Prosek", "Střížkov", "Ládví", "Kobylisy", "Nádraží Holešovice", "Vltavská", "Florenc", "Hlavní nádraží", "Muzeum", "I. P. Pavlova", "Vyšehrad", "Pražského povstání", "Pankrác", "Budějovická", "Kačerov", "Roztyly", "Chodov", "Opatov", "Háje"].includes(station)) lines.push('C');
+
+    const uniqueLines = [...new Set(lines)];
+
+    if (uniqueLines.length === 1) {
+        STATION_TITLE.style.background = `linear-gradient(to right, #fff, var(--metro-${uniqueLines[0].toLowerCase()}))`;
+    } else if (uniqueLines.length > 1) {
+        // Přestupní stanice (více barev)
+        const c1 = `var(--metro-${uniqueLines[0].toLowerCase()})`;
+        const c2 = `var(--metro-${uniqueLines[1].toLowerCase()})`;
+        STATION_TITLE.style.background = `linear-gradient(to right, ${c1}, ${c2})`;
+    } else {
+        STATION_TITLE.style.background = `linear-gradient(to right, #fff, #94a3b8)`;
+    }
+    STATION_TITLE.style.webkitBackgroundClip = 'text';
+    STATION_TITLE.style.color = 'transparent';
+}
+
 REFRESH_BTN.addEventListener('click', fetchDepartures);
+
 
 async function fetchDepartures() {
     LOADER.classList.remove('hidden');
 
     try {
-        // Získání odjezdů ze stanice Chodov
         const url = new URL('https://api.golemio.cz/v2/pid/departureboards');
-        url.searchParams.append('names', 'Chodov');
-        url.searchParams.append('limit', '30'); // Získáme víc odjezdů, pak odfiltrujeme jen linky C
+        url.searchParams.append('names', currentStation);
+        url.searchParams.append('limit', '50'); // Zvýšit limit kvůli jiným módům dopravy (bus/tram)
 
         const response = await fetch(url.toString(), {
             headers: {
@@ -44,71 +132,102 @@ async function fetchDepartures() {
         renderDepartures(data.departures || []);
     } catch (error) {
         console.error(error);
-        DEPARTURES_LETNANY.innerHTML = `<li class="departure-item" style="color:var(--accent);">Chyba připojení k API</li>`;
-        DEPARTURES_HAJE.innerHTML = `<li class="departure-item" style="color:var(--accent);">Chyba připojení k API</li>`;
+        DIRECTIONS_WRAPPER.innerHTML = `<div style="width:100%;text-align:center;padding:2rem;"><div style="color:var(--metro-c); font-size: 1.2rem;">Chyba připojení k API.</div></div>`;
     } finally {
         setTimeout(() => LOADER.classList.add('hidden'), 500);
     }
 }
 
 function renderDepartures(departures) {
-    // Filtrovat pouze linky nazvané "C"
-    const metroCDepartures = departures.filter(dep => dep.route.short_name === 'C');
+    // Filtrovat pouze linky metra nazvané "A", "B", "C"
+    // Golemio u metra casto vraci route.short_name jako 'A', 'B', 'C'
+    const metroDepartures = departures.filter(dep => ['A', 'B', 'C'].includes(dep.route.short_name));
 
-    // Rozlišit směry - Letňany vs Háje
-    const letnany = metroCDepartures.filter(dep => dep.trip.headsign.toLowerCase().includes('let'));
-    const haje = metroCDepartures.filter(dep => dep.trip.headsign.toLowerCase().includes('háj'));
+    // Group by headsign and limit to first 5 departures per group
+    const directionsGroups = {};
 
-    // Vykreslit max. prvních 4 odjezdů pro každý směr
-    renderList(DEPARTURES_LETNANY, letnany.slice(0, 4));
-    renderList(DEPARTURES_HAJE, haje.slice(0, 4));
-}
+    metroDepartures.forEach(dep => {
+        let headsign = dep.trip.headsign;
+        // Občas má Golemio podivný headsign např. plné jméno apod, nebo jen "Depo Hostivař"
+        // Seskuppíme je podle linek a cíle
+        const key = `${dep.route.short_name}-${headsign}`;
 
-function renderList(container, trips) {
-    container.innerHTML = '';
+        if (!directionsGroups[key]) {
+            directionsGroups[key] = {
+                line: dep.route.short_name,
+                headsign: headsign,
+                trips: []
+            };
+        }
+        directionsGroups[key].trips.push(dep);
+    });
 
-    if (trips.length === 0) {
-        container.innerHTML = '<li class="departure-item" style="justify-content:center;color:var(--text-secondary);">Žádné brzké odjezdy</li>';
+    DIRECTIONS_WRAPPER.innerHTML = '';
+    const keys = Object.keys(directionsGroups);
+
+    if (keys.length === 0) {
+        DIRECTIONS_WRAPPER.innerHTML = '<div style="width:100%;text-align:center;color:var(--text-secondary);padding:2rem;">Žádné brzké odjezdy metra</div>';
         return;
     }
 
+    // Vygenerovat pro každý směr jeden sloupec
+    keys.forEach(key => {
+        const group = directionsGroups[key];
+        const lineStr = group.line.toLowerCase();
+        const colorVar = `var(--metro-${lineStr})`;
+
+        const col = document.createElement('div');
+        col.className = 'direction-column';
+
+        col.innerHTML = `
+            <div class="direction-header" style="border-bottom: 2px solid ${colorVar};">
+                Směr ${group.headsign} <span style="color:${colorVar}; font-weight:bold;">(M- ${group.line})</span>
+            </div>
+            <ul class="departure-list"></ul>
+        `;
+
+        const list = col.querySelector('.departure-list');
+        renderList(list, group.trips.slice(0, 5), colorVar, group.line); // max 5 per column
+
+        DIRECTIONS_WRAPPER.appendChild(col);
+    });
+
+    // Okamžitá inicializace odpočtů
+    updateCountdown();
+}
+
+function renderList(container, trips, colorVar, lineShort) {
     trips.forEach(trip => {
-        // Použít predicted time, pokud chybí pak scheduled
         const timeStr = trip.departure_timestamp.predicted || trip.departure_timestamp.scheduled;
         const departureTime = new Date(timeStr);
-
-        // Zobrazovaný reálný čas odjezdu
         const timeDisplay = departureTime.toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' });
 
         // Zpoždění
         let delayDisplay = '';
         if (trip.delay && trip.delay.is_available && trip.delay.minutes > 0) {
-            delayDisplay = `<span style="color:var(--accent)"> (+${trip.delay.minutes}m)</span>`;
+            delayDisplay = `<span style="color:${colorVar}"> (+${trip.delay.minutes}m)</span>`;
         }
 
         const li = document.createElement('li');
         li.className = 'departure-item';
-        // Zjemnění animace načtení
         li.style.animation = 'fadeIn 0.5s ease-out';
 
         li.innerHTML = `
             <div>
-                <div style="font-weight: 600; font-size: 1.1rem;">Metro C</div>
+                <div style="font-weight: 600; font-size: 1.1rem; color: ${colorVar}">Metro ${lineShort}</div>
                 <div class="real-time">🕰️ ${timeDisplay} ${delayDisplay}</div>
             </div>
-            <div class="time-left" data-time="${timeStr}">...</div>
+            <div class="time-left" data-time="${timeStr}" data-color="${colorVar}">...</div>
         `;
         container.appendChild(li);
     });
-
-    // Okamžitá inicializace odpočtů aby nebyl text "..." dlouho vidět
-    updateCountdown();
 }
 
 function updateCountdown() {
     const now = new Date();
     document.querySelectorAll('.time-left[data-time]').forEach(el => {
         const departureTime = new Date(el.getAttribute('data-time'));
+        const colorVar = el.getAttribute('data-color') || 'var(--metro-c)';
 
         let diffSecs = Math.floor((departureTime - now) / 1000);
         if (diffSecs < 0) diffSecs = 0;
@@ -116,13 +235,12 @@ function updateCountdown() {
         let mins = Math.floor(diffSecs / 60);
         let secs = diffSecs % 60;
 
-        // Naformátovat vteřiny tak, aby vždy měly 2 cifry – zamezí to skákání textu
         const secsStr = secs.toString().padStart(2, '0');
 
         if (diffSecs === 0) {
-            el.innerHTML = '<span class="highlighted">Nyní</span>';
+            el.innerHTML = `<span class="highlighted" style="color:${colorVar}">Nyní</span>`;
         } else if (mins === 0) {
-            el.innerHTML = `<span style="color:var(--accent);">${secsStr} <span>s</span></span>`;
+            el.innerHTML = `<span style="color:${colorVar};">${secsStr} <span>s</span></span>`;
         } else {
             el.innerHTML = `${mins} <span>m</span> ${secsStr} <span>s</span>`;
         }
