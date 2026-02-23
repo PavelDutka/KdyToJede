@@ -13,9 +13,9 @@
     <div class="app-container">
         <header>
             <div class="logo">🚇 Kdy to jede?</div>
-            <h1 id="station-title">Stanice Chodov</h1>
+            <h1 id="station-title" class="hidden">Výběr stanice</h1>
 
-            <div class="search-container">
+            <div class="search-container initial-state" id="search-container">
                 <input type="text" id="station-search" placeholder="Vyhledejte stanici metra (např. Muzeum)..."
                     autocomplete="off">
                 <ul id="search-results" class="hidden"></ul>
@@ -24,7 +24,7 @@
 
         <main>
             <!-- Data section for departures -->
-            <div id="data-container">
+            <div id="data-container" class="hidden">
                 <div class="directions-container" id="directions-wrapper">
                     <!-- Columns will be injected here dynamically -->
                 </div>

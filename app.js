@@ -5,12 +5,13 @@ const DATA_CONTAINER = document.getElementById('data-container');
 const DIRECTIONS_WRAPPER = document.getElementById('directions-wrapper');
 const LOADER = document.getElementById('loader');
 const REFRESH_BTN = document.getElementById('refresh-btn');
+const SEARCH_CONTAINER = document.getElementById('search-container');
 const SEARCH_INPUT = document.getElementById('station-search');
 const SEARCH_RESULTS = document.getElementById('search-results');
 const STATION_TITLE = document.getElementById('station-title');
 
 let fetchInterval = null;
-let currentStation = 'Chodov'; // výchozí stanice
+let currentStation = null; // Prázdná výchozí stanice
 
 // Seznam stanic metra seřazený podle skutečného pořadí pro určení směrů
 const lineA = ["Nemocnice Motol", "Petřiny", "Nádraží Veleslavín", "Bořislavka", "Dejvická", "Hradčanská", "Malostranská", "Staroměstská", "Můstek", "Muzeum", "Náměstí Míru", "Jiřího z Poděbrad", "Flora", "Želivského", "Strašnická", "Skalka", "Depo Hostivař"];
@@ -22,15 +23,17 @@ const uniqueStations = [...new Set([...lineA, ...lineB, ...lineC])].sort((a, b) 
 
 function init() {
     setupSearch();
-    updateTitleColors(currentStation);
-    fetchDepartures();
 
-    // Auto-refresh every 20 seconds
+    // Auto-refresh every 20 seconds only if we selected a station
     if (fetchInterval) clearInterval(fetchInterval);
-    fetchInterval = setInterval(fetchDepartures, 20000);
+    fetchInterval = setInterval(() => {
+        if (currentStation) fetchDepartures();
+    }, 20000);
 
     // Aktualizace odpočtu každou vteřinu
-    setInterval(updateCountdown, 1000);
+    setInterval(() => {
+        if (currentStation) updateCountdown();
+    }, 1000);
 }
 
 function setupSearch() {
@@ -70,8 +73,15 @@ function setupSearch() {
 function selectStation(station) {
     currentStation = station;
     SEARCH_INPUT.value = '';
+    SEARCH_INPUT.placeholder = 'Vyhledat jinou stanici...';
     SEARCH_RESULTS.classList.add('hidden');
     STATION_TITLE.textContent = `Stanice ${station}`;
+
+    // Odhalit interface a animovat vyhledavaci policko
+    STATION_TITLE.classList.remove('hidden');
+    SEARCH_CONTAINER.classList.remove('initial-state');
+    DATA_CONTAINER.classList.remove('hidden');
+
     updateTitleColors(station);
 
     // Reset columns for layout transition

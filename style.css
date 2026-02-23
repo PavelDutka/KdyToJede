@@ -65,6 +65,19 @@ header h1 {
     max-width: 450px;
     margin: 1.5rem auto 0;
     z-index: 20;
+    transition: all 0.5s ease-in-out;
+}
+
+.search-container.initial-state {
+    max-width: 650px;
+    margin-top: 15vh;
+}
+
+.search-container.initial-state input {
+    font-size: 1.4rem;
+    padding: 1.5rem 2rem;
+    box-shadow: 0 16px 32px 0 rgba(0, 0, 0, 0.5);
+    background: rgba(255, 255, 255, 0.12);
 }
 
 #station-search {
