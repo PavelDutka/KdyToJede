@@ -73,30 +73,61 @@ header h1 {
     margin-top: 15vh;
 }
 
-.search-container.initial-state input {
-    font-size: 1.4rem;
-    padding: 1.5rem 2rem;
-    box-shadow: 0 16px 32px 0 rgba(0, 0, 0, 0.5);
-    background: rgba(255, 255, 255, 0.12);
+.input-wrapper {
+    position: relative;
+    width: 100%;
 }
 
-#station-search {
+#station-search,
+#station-search-autocomplete {
     width: 100%;
     padding: 1rem 1.5rem;
     border-radius: 20px;
-    border: 1px solid var(--glass-border);
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(12px);
-    color: #fff;
     font-family: 'Outfit', sans-serif;
     font-size: 1.1rem;
     outline: none;
+    text-align: left;
     transition: all 0.3s ease;
-    text-align: center;
+    box-sizing: border-box;
+}
+
+#station-search-autocomplete {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: rgba(255, 255, 255, 0.08);
+    /* Wrapper má viditelný bg */
+    border: 1px solid transparent;
+    color: rgba(255, 255, 255, 0.4);
+    /* Vyhledávaný zbytek textu (šedě) */
+    pointer-events: none;
+    /* Ignoruje klikání na pozadí */
+    backdrop-filter: blur(12px);
+    z-index: 1;
+}
+
+#station-search {
+    position: relative;
+    background: transparent;
+    /* Hlavní input přes to má průhledné pozadí */
+    border: 1px solid var(--glass-border);
+    color: #fff;
+    z-index: 2;
+}
+
+/* Animovaný stav a zvětšení inputů z defaultních na úvodní */
+.search-container.initial-state #station-search,
+.search-container.initial-state #station-search-autocomplete {
+    font-size: 1.4rem;
+    padding: 1.5rem 2rem;
+}
+
+.search-container.initial-state #station-search-autocomplete {
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 16px 32px 0 rgba(0, 0, 0, 0.5);
 }
 
 #station-search:focus {
-    background: rgba(255, 255, 255, 0.15);
     border-color: rgba(255, 255, 255, 0.5);
     box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
 }

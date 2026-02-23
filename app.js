@@ -7,6 +7,7 @@ const LOADER = document.getElementById('loader');
 const REFRESH_BTN = document.getElementById('refresh-btn');
 const SEARCH_CONTAINER = document.getElementById('search-container');
 const SEARCH_INPUT = document.getElementById('station-search');
+const AUTOCOMPLETE_INPUT = document.getElementById('station-search-autocomplete');
 const SEARCH_RESULTS = document.getElementById('search-results');
 const STATION_TITLE = document.getElementById('station-title');
 
@@ -43,14 +44,25 @@ function setupSearch() {
     };
 
     SEARCH_INPUT.addEventListener('input', (e) => {
-        const val = removeDiacritics(e.target.value.toLowerCase());
+        const rawVal = e.target.value;
+        const val = removeDiacritics(rawVal.toLowerCase());
         SEARCH_RESULTS.innerHTML = '';
+        AUTOCOMPLETE_INPUT.value = '';
+
         if (!val) {
             SEARCH_RESULTS.classList.add('hidden');
             return;
         }
 
         const matches = uniqueStations.filter(s => removeDiacritics(s.toLowerCase()).includes(val));
+
+        // Hledání první stanice, která ZAČÍNÁ uživatelovým slovem (pro našeptávač uvnitř políčka)
+        const startsWithMatch = matches.find(s => removeDiacritics(s.toLowerCase()).startsWith(val));
+        if (startsWithMatch) {
+            // Zachová se text přesně jak ho napsal uživatel, zbytek se natáhne z opravdového jména
+            AUTOCOMPLETE_INPUT.value = rawVal + startsWithMatch.slice(rawVal.length);
+        }
+
         if (matches.length > 0) {
             matches.forEach(match => {
                 const li = document.createElement('li');
@@ -67,6 +79,18 @@ function setupSearch() {
         }
     });
 
+    // Umožnění potvrzení našeptané hodnoty klávesami Enter a Tab
+    SEARCH_INPUT.addEventListener('keydown', (e) => {
+        if ((e.key === 'Enter' || e.key === 'Tab') && AUTOCOMPLETE_INPUT.value) {
+            e.preventDefault(); // Pokud byl stisknut Tab, zabránit přechodu fokusu jinam
+            const val = removeDiacritics(AUTOCOMPLETE_INPUT.value.toLowerCase());
+            const station = uniqueStations.find(s => removeDiacritics(s.toLowerCase()) === val);
+            if (station) {
+                selectStation(station);
+            }
+        }
+    });
+
     // Skrytí když se klikne vedle
     document.addEventListener('click', (e) => {
         if (!SEARCH_INPUT.contains(e.target) && !SEARCH_RESULTS.contains(e.target)) {
@@ -78,6 +102,7 @@ function setupSearch() {
 function selectStation(station) {
     currentStation = station;
     SEARCH_INPUT.value = '';
+    AUTOCOMPLETE_INPUT.value = '';
     SEARCH_INPUT.placeholder = 'Vyhledat jinou stanici...';
     SEARCH_RESULTS.classList.add('hidden');
     STATION_TITLE.textContent = `Stanice ${station}`;

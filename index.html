@@ -16,8 +16,11 @@
             <h1 id="station-title" class="hidden">Výběr stanice</h1>
 
             <div class="search-container initial-state" id="search-container">
-                <input type="text" id="station-search" placeholder="Vyhledejte stanici metra (např. Muzeum)..."
-                    autocomplete="off">
+                <div class="input-wrapper">
+                    <input type="text" id="station-search-autocomplete" disabled spellcheck="false">
+                    <input type="text" id="station-search" placeholder="Vyhledejte stanici metra (např. Muzeum)..."
+                        autocomplete="off" spellcheck="false">
+                </div>
                 <ul id="search-results" class="hidden"></ul>
             </div>
         </header>
