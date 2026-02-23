@@ -37,15 +37,20 @@ function init() {
 }
 
 function setupSearch() {
+    // Pomocná funkce pro odstranění diakritiky
+    const removeDiacritics = (str) => {
+        return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    };
+
     SEARCH_INPUT.addEventListener('input', (e) => {
-        const val = e.target.value.toLowerCase();
+        const val = removeDiacritics(e.target.value.toLowerCase());
         SEARCH_RESULTS.innerHTML = '';
         if (!val) {
             SEARCH_RESULTS.classList.add('hidden');
             return;
         }
 
-        const matches = uniqueStations.filter(s => s.toLowerCase().includes(val));
+        const matches = uniqueStations.filter(s => removeDiacritics(s.toLowerCase()).includes(val));
         if (matches.length > 0) {
             matches.forEach(match => {
                 const li = document.createElement('li');
