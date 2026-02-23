@@ -12,18 +12,13 @@ const STATION_TITLE = document.getElementById('station-title');
 let fetchInterval = null;
 let currentStation = 'Chodov'; // výchozí stanice
 
-// Seznam stanic metra pro rychlé lokální našeptávání
-const metroStations = [
-    // Linka A
-    "Nemocnice Motol", "Petřiny", "Nádraží Veleslavín", "Bořislavka", "Dejvická", "Hradčanská", "Malostranská", "Staroměstská", "Můstek", "Muzeum", "Náměstí Míru", "Jiřího z Poděbrad", "Flora", "Želivského", "Strašnická", "Skalka", "Depo Hostivař",
-    // Linka B
-    "Zličín", "Stodůlky", "Luka", "Lužiny", "Hůrka", "Nové Butovice", "Jinonice", "Radlická", "Smíchovské nádraží", "Anděl", "Karlovo náměstí", "Národní třída", "Náměstí Republiky", "Florenc", "Křižíkova", "Invalidovna", "Palmovka", "Českomoravská", "Vysočanská", "Kolbenova", "Hloubětín", "Rajská zahrada", "Černý Most",
-    // Linka C
-    "Letňany", "Prosek", "Střížkov", "Ládví", "Kobylisy", "Nádraží Holešovice", "Vltavská", "Hlavní nádraží", "I. P. Pavlova", "Vyšehrad", "Pražského povstání", "Pankrác", "Budějovická", "Kačerov", "Roztyly", "Chodov", "Opatov", "Háje"
-];
+// Seznam stanic metra seřazený podle skutečného pořadí pro určení směrů
+const lineA = ["Nemocnice Motol", "Petřiny", "Nádraží Veleslavín", "Bořislavka", "Dejvická", "Hradčanská", "Malostranská", "Staroměstská", "Můstek", "Muzeum", "Náměstí Míru", "Jiřího z Poděbrad", "Flora", "Želivského", "Strašnická", "Skalka", "Depo Hostivař"];
+const lineB = ["Zličín", "Stodůlky", "Luka", "Lužiny", "Hůrka", "Nové Butovice", "Jinonice", "Radlická", "Smíchovské nádraží", "Anděl", "Karlovo náměstí", "Národní třída", "Můstek", "Náměstí Republiky", "Florenc", "Křižíkova", "Invalidovna", "Palmovka", "Českomoravská", "Vysočanská", "Kolbenova", "Hloubětín", "Rajská zahrada", "Černý Most"];
+const lineC = ["Letňany", "Prosek", "Střížkov", "Ládví", "Kobylisy", "Nádraží Holešovice", "Vltavská", "Florenc", "Hlavní nádraží", "Muzeum", "I. P. Pavlova", "Vyšehrad", "Pražského povstání", "Pankrác", "Budějovická", "Kačerov", "Roztyly", "Chodov", "Opatov", "Háje"];
 
-// Odstranění duplicit (přestupní stanice jako Muzeum, Můstek, Florenc)
-const uniqueStations = [...new Set(metroStations)].sort((a, b) => a.localeCompare(b, 'cs'));
+// Odstranění duplicit pro našeptávač (přestupní stanice jako Muzeum, Můstek, Florenc)
+const uniqueStations = [...new Set([...lineA, ...lineB, ...lineC])].sort((a, b) => a.localeCompare(b, 'cs'));
 
 function init() {
     setupSearch();
@@ -87,9 +82,9 @@ function selectStation(station) {
 
 function updateTitleColors(station) {
     let lines = [];
-    if (["Nemocnice Motol", "Petřiny", "Nádraží Veleslavín", "Bořislavka", "Dejvická", "Hradčanská", "Malostranská", "Staroměstská", "Můstek", "Muzeum", "Náměstí Míru", "Jiřího z Poděbrad", "Flora", "Želivského", "Strašnická", "Skalka", "Depo Hostivař"].includes(station)) lines.push('A');
-    if (["Zličín", "Stodůlky", "Luka", "Lužiny", "Hůrka", "Nové Butovice", "Jinonice", "Radlická", "Smíchovské nádraží", "Anděl", "Karlovo náměstí", "Národní třída", "Můstek", "Náměstí Republiky", "Florenc", "Křižíkova", "Invalidovna", "Palmovka", "Českomoravská", "Vysočanská", "Kolbenova", "Hloubětín", "Rajská zahrada", "Černý Most"].includes(station)) lines.push('B');
-    if (["Letňany", "Prosek", "Střížkov", "Ládví", "Kobylisy", "Nádraží Holešovice", "Vltavská", "Florenc", "Hlavní nádraží", "Muzeum", "I. P. Pavlova", "Vyšehrad", "Pražského povstání", "Pankrác", "Budějovická", "Kačerov", "Roztyly", "Chodov", "Opatov", "Háje"].includes(station)) lines.push('C');
+    if (lineA.includes(station)) lines.push('A');
+    if (lineB.includes(station)) lines.push('B');
+    if (lineC.includes(station)) lines.push('C');
 
     const uniqueLines = [...new Set(lines)];
 
@@ -138,27 +133,52 @@ async function fetchDepartures() {
     }
 }
 
+function getDirectionName(station, headsign, routeShortName) {
+    let lineArr = [];
+    if (routeShortName === 'A') lineArr = lineA;
+    if (routeShortName === 'B') lineArr = lineB;
+    if (routeShortName === 'C') lineArr = lineC;
+
+    const currIdx = lineArr.indexOf(station);
+    const headIdx = lineArr.indexOf(headsign);
+
+    // Pokud známe obě stanice, určíme absolutní koncovou stanici jako hlavní směr
+    if (currIdx !== -1 && headIdx !== -1) {
+        if (headIdx > currIdx) return lineArr[lineArr.length - 1]; // np. Háje, Depo Hostivař, Černý Most
+        if (headIdx < currIdx) return lineArr[0]; // np. Letňany, Nemocnice Motol, Zličín
+    }
+
+    // fallback, pokud se stanici nepodaří přiřadit do pořadí
+    return headsign;
+}
+
 function renderDepartures(departures) {
     // Filtrovat pouze linky metra nazvané "A", "B", "C"
     // Golemio u metra casto vraci route.short_name jako 'A', 'B', 'C'
     const metroDepartures = departures.filter(dep => ['A', 'B', 'C'].includes(dep.route.short_name));
 
-    // Group by headsign and limit to first 5 departures per group
+    // Group by direction (not just headsign) and limit to first 5 departures per group
     const directionsGroups = {};
 
     metroDepartures.forEach(dep => {
         let headsign = dep.trip.headsign;
-        // Občas má Golemio podivný headsign např. plné jméno apod, nebo jen "Depo Hostivař"
-        // Seskuppíme je podle linek a cíle
-        const key = `${dep.route.short_name}-${headsign}`;
+
+        // Zjistíme "hlavní směr" (zabrání tvorbě nového sloupce pro "Kačerov" když už jedeme směr "Háje")
+        let directionName = getDirectionName(currentStation, headsign, dep.route.short_name);
+
+        const key = `${dep.route.short_name}-${directionName}`;
 
         if (!directionsGroups[key]) {
             directionsGroups[key] = {
                 line: dep.route.short_name,
-                headsign: headsign,
+                directionName: directionName,
                 trips: []
             };
         }
+
+        // Cílová stanice může být kratší, tak si ji uchováme pro detailní info u samotného vlaku
+        dep._renderedHeadsign = headsign;
+
         directionsGroups[key].trips.push(dep);
     });
 
@@ -181,7 +201,7 @@ function renderDepartures(departures) {
 
         col.innerHTML = `
             <div class="direction-header" style="border-bottom: 2px solid ${colorVar};">
-                Směr ${group.headsign} <span style="color:${colorVar}; font-weight:bold;">(M- ${group.line})</span>
+                Směr ${group.directionName} <span style="color:${colorVar}; font-weight:bold;">(M- ${group.line})</span>
             </div>
             <ul class="departure-list"></ul>
         `;
@@ -212,9 +232,15 @@ function renderList(container, trips, colorVar, lineShort) {
         li.className = 'departure-item';
         li.style.animation = 'fadeIn 0.5s ease-out';
 
+        // Pokud má vlak jinou konečnou než hlavní směr (např. Kačerov místo Háje), ukážeme to v detailu
+        let detailHeadsign = '';
+        if (trip._renderedHeadsign !== getDirectionName(currentStation, trip._renderedHeadsign, lineShort)) {
+            detailHeadsign = `<span style="font-size:0.85em; color:var(--text-secondary); margin-left:8px;">(jede jen na ${trip._renderedHeadsign})</span>`;
+        }
+
         li.innerHTML = `
             <div>
-                <div style="font-weight: 600; font-size: 1.1rem; color: ${colorVar}">Metro ${lineShort}</div>
+                <div style="font-weight: 600; font-size: 1.1rem; color: ${colorVar}">Metro ${lineShort} ${detailHeadsign}</div>
                 <div class="real-time">🕰️ ${timeDisplay} ${delayDisplay}</div>
             </div>
             <div class="time-left" data-time="${timeStr}" data-color="${colorVar}">...</div>
