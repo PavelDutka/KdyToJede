@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kdy to jede? - Metro Chodov</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+        <header>
+            <div class="logo">🚇 Kdy to jede?</div>
+            <h1>Metro C - Chodov</h1>
+        </header>
+
+        <main>
+            <!-- Data section for departures -->
+            <div id="data-container">
+                <div class="directions-container">
+                    <div class="direction-column">
+                        <div class="direction-header">Směr Letňany</div>
+                        <ul id="departures-letnany" class="departure-list">
+                            <!-- JS will inject here -->
+                        </ul>
+                    </div>
+                    <div class="direction-column">
+                        <div class="direction-header">Směr Háje</div>
+                        <ul id="departures-haje" class="departure-list">
+                            <!-- JS will inject here -->
+                        </ul>
+                    </div>
+                </div>
+                <div class="actions" style="margin-top:2rem; text-align:center;">
+                    <button id="refresh-btn"
+                        style="background:rgba(255,255,255,0.1); color:#fff; font-size:0.9rem; padding:0.5rem 1rem;">Obnovit
+                        data</button>
+                </div>
+            </div>
+        </main>
+
+        <div class="loader hidden" id="loader">Načítám čerstvá data...</div>
+
+        <footer>
+            Data poskytuje <a href="https://golemio.cz" target="_blank">Otevřená data Praha (Golemio)</a>
+        </footer>
+    </div>
+    <script src="app.js"></script>
+</body>
+
+</html>
