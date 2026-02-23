@@ -106,6 +106,19 @@ function setupSearch() {
         }
     });
 
+    const SEARCH_SUBMIT = document.getElementById('search-submit');
+    if (SEARCH_SUBMIT) {
+        SEARCH_SUBMIT.addEventListener('click', () => {
+            if (AUTOCOMPLETE_INPUT.value) {
+                const val = removeDiacritics(AUTOCOMPLETE_INPUT.value.toLowerCase());
+                const station = uniqueStations.find(s => removeDiacritics(s.toLowerCase()) === val);
+                if (station) {
+                    selectStation(station);
+                }
+            }
+        });
+    }
+
     // Skrytí když se klikne vedle
     document.addEventListener('click', (e) => {
         if (!SEARCH_INPUT.contains(e.target) && !SEARCH_RESULTS.contains(e.target)) {
@@ -125,6 +138,8 @@ function selectStation(station) {
     // Odhalit interface a animovat vyhledavaci policko
     STATION_TITLE.classList.remove('hidden');
     SEARCH_CONTAINER.classList.remove('initial-state');
+    document.getElementById('main-logo').classList.remove('initial-state');
+    document.getElementById('hero-image').classList.remove('initial-state');
     DATA_CONTAINER.classList.remove('hidden');
 
     updateTitleColors(station);

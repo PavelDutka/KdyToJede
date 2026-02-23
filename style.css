@@ -44,12 +44,58 @@ header {
     animation: fadeInDown 0.8s ease-out;
 }
 
+.hero-image {
+    max-height: 0;
+    opacity: 0;
+    margin-bottom: 0;
+    overflow: hidden;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hero-image.initial-state {
+    max-height: 180px;
+    opacity: 1;
+    margin-bottom: 1rem;
+    filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.15));
+}
+
 .logo {
     font-size: 1.2rem;
-    color: var(--text-secondary);
-    margin-bottom: 0.5rem;
-    font-weight: 300;
+    font-weight: 600;
     letter-spacing: 2px;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(to right, var(--text-secondary), var(--text-secondary));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.logo.initial-state {
+    font-size: 4.5rem;
+    font-weight: 800;
+    letter-spacing: -2px;
+    margin-bottom: 2vh;
+    background: linear-gradient(to right, var(--metro-a), var(--metro-c));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% auto;
+    animation: gradientShift 6s ease-in-out infinite;
+}
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
 }
 
 header h1 {
@@ -112,7 +158,8 @@ body.dark-theme header h1 {
 
 .search-container.initial-state {
     max-width: 650px;
-    margin-top: 15vh;
+    margin-top: 3rem;
+    /* Sníženo ze 15vh na 3rem pro odstranění zbytečné mezery */
 }
 
 .input-wrapper {
@@ -123,7 +170,7 @@ body.dark-theme header h1 {
 #station-search,
 #station-search-autocomplete {
     width: 100%;
-    padding: 1rem 1.5rem;
+    padding: 1rem 3.5rem 1rem 3.5rem;
     border-radius: 20px;
     font-family: 'Outfit', sans-serif;
     font-size: 1.1rem;
@@ -153,6 +200,33 @@ body.dark-theme #station-search-autocomplete {
     color: rgba(255, 255, 255, 0.4);
 }
 
+.search-icon,
+.search-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    color: var(--text-secondary);
+    z-index: 3;
+    transition: all 0.3s ease;
+}
+
+.search-icon {
+    left: 1.2rem;
+    pointer-events: none;
+}
+
+.search-arrow {
+    right: 1.2rem;
+    cursor: pointer;
+}
+
+.search-arrow:hover {
+    color: var(--text-primary);
+    transform: translateY(-50%) scale(1.1);
+}
+
 #station-search {
     position: relative;
     background: transparent;
@@ -166,7 +240,19 @@ body.dark-theme #station-search-autocomplete {
 .search-container.initial-state #station-search,
 .search-container.initial-state #station-search-autocomplete {
     font-size: 1.4rem;
-    padding: 1.5rem 2rem;
+    padding: 1.5rem 4rem 1.5rem 4rem;
+}
+
+.search-container.initial-state .search-icon {
+    left: 1.5rem;
+    width: 28px;
+    height: 28px;
+}
+
+.search-container.initial-state .search-arrow {
+    right: 1.5rem;
+    width: 32px;
+    height: 32px;
 }
 
 body.dark-theme .search-container.initial-state #station-search-autocomplete {

@@ -13,14 +13,25 @@
     <div class="app-container">
         <button id="theme-toggle" class="theme-toggle" aria-label="Přepnout motiv">🌓</button>
         <header>
-            <div class="logo">🚇 Kdy to jede?</div>
+            <img src="img/metro.png" id="hero-image" class="hero-image initial-state" alt="Metro">
+            <div class="logo initial-state" id="main-logo">Kdy to jede?</div>
             <h1 id="station-title" class="hidden">Výběr stanice</h1>
 
             <div class="search-container initial-state" id="search-container">
                 <div class="input-wrapper">
+                    <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
                     <input type="text" id="station-search-autocomplete" disabled spellcheck="false">
-                    <input type="text" id="station-search" placeholder="Vyhledejte stanici metra (např. Muzeum)..."
-                        autocomplete="off" spellcheck="false">
+                    <input type="text" id="station-search" placeholder="Vyhledejte stanici metra..." autocomplete="off"
+                        spellcheck="false">
+                    <svg class="search-arrow" id="search-submit" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                 </div>
                 <ul id="search-results" class="hidden"></ul>
             </div>
