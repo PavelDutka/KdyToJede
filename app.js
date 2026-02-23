@@ -172,10 +172,24 @@ function updateTitleColors(station) {
     STATION_TITLE.style.color = 'transparent';
 }
 
-REFRESH_BTN.addEventListener('click', fetchDepartures);
+let isFetching = false;
+let lastFetchTime = 0;
 
+REFRESH_BTN.addEventListener('click', () => {
+    const now = Date.now();
+    // Ochrana proti spamu: max 1 kliknutí za 3 sekundy
+    if (isFetching || now - lastFetchTime < 3000) return;
+    fetchDepartures();
+});
 
 async function fetchDepartures() {
+    if (isFetching) return;
+    isFetching = true;
+    lastFetchTime = Date.now();
+
+    // Vizuální indikace načítání na tlačítku
+    REFRESH_BTN.style.opacity = '0.5';
+    REFRESH_BTN.style.cursor = 'not-allowed';
     LOADER.classList.remove('hidden');
 
     try {
@@ -197,8 +211,11 @@ async function fetchDepartures() {
         renderDepartures(data.departures || []);
     } catch (error) {
         console.error(error);
-        DIRECTIONS_WRAPPER.innerHTML = `<div style="width:100%;text-align:center;padding:2rem;"><div style="color:var(--metro-c); font-size: 1.2rem;">Chyba připojení k API.</div></div>`;
+        DIRECTIONS_WRAPPER.innerHTML = `<div style="width:100%;text-align:center;padding:2rem;"><div style="color:var(--metro-c); font-size: 1.2rem;">Chyba připojení k API. Zkuste to za chvíli.</div></div>`;
     } finally {
+        isFetching = false;
+        REFRESH_BTN.style.opacity = '1';
+        REFRESH_BTN.style.cursor = 'pointer';
         setTimeout(() => LOADER.classList.add('hidden'), 500);
     }
 }
