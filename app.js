@@ -150,6 +150,33 @@ function selectStation(station) {
     fetchDepartures();
 }
 
+function resetToHome() {
+    currentStation = null;
+    if (fetchInterval) clearInterval(fetchInterval);
+
+    // Skryti vysledku
+    STATION_TITLE.classList.add('hidden');
+    DATA_CONTAINER.classList.add('hidden');
+    SEARCH_RESULTS.classList.add('hidden');
+
+    // Obnova velkych trid
+    SEARCH_CONTAINER.classList.add('initial-state');
+    document.getElementById('main-logo').classList.add('initial-state');
+    document.getElementById('hero-image').classList.add('initial-state');
+
+    // Vycisteni pola
+    SEARCH_INPUT.value = '';
+    AUTOCOMPLETE_INPUT.value = '';
+    SEARCH_INPUT.placeholder = 'Vyhledejte stanici metra (např. Muzeum)...';
+}
+
+document.getElementById('main-logo').addEventListener('click', (e) => {
+    // Restart jen pokud aplikaci aktivne pouzivame
+    if (!e.target.classList.contains('initial-state')) {
+        resetToHome();
+    }
+});
+
 function updateTitleColors(station) {
     let lines = [];
     if (lineA.includes(station)) lines.push('A');

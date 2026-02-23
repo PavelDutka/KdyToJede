@@ -60,6 +60,7 @@ header {
 }
 
 .logo {
+    display: block;
     font-size: 1.2rem;
     font-weight: 600;
     letter-spacing: 2px;
@@ -69,6 +70,16 @@ header {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+}
+
+/* Pozice pro zmenšené logo po kliknutí na stanici -> letí doleva nahoru */
+.logo:not(.initial-state) {
+    position: absolute;
+    top: 2.1rem;
+    left: 2rem;
+    margin-bottom: 0;
+    z-index: 100;
 }
 
 .logo.initial-state {
