@@ -147,6 +147,25 @@ body.dark-theme header h1 {
     /* override default button hover */
 }
 
+.theme-toggle .icon-moon,
+.theme-toggle .icon-sun {
+    width: 24px;
+    height: 24px;
+    transition: all 0.3s ease;
+}
+
+.theme-toggle .icon-sun {
+    display: none;
+}
+
+body.dark-theme .theme-toggle .icon-moon {
+    display: none;
+}
+
+body.dark-theme .theme-toggle .icon-sun {
+    display: block;
+}
+
 /* --- Search --- */
 .search-container {
     position: relative;
