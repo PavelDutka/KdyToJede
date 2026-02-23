@@ -311,7 +311,7 @@ function renderList(container, trips, colorVar, lineShort) {
         li.innerHTML = `
             <div>
                 <div style="font-weight: 600; font-size: 1.1rem; color: ${colorVar}">Metro ${lineShort} ${detailHeadsign}</div>
-                <div class="real-time">🕰️ ${timeDisplay} ${delayDisplay}</div>
+                <div class="real-time">${timeDisplay} ${delayDisplay}</div>
             </div>
             <div class="time-left" data-time="${timeStr}" data-color="${colorVar}">...</div>
         `;
