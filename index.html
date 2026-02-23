@@ -11,6 +11,7 @@
 
 <body>
     <div class="app-container">
+        <button id="theme-toggle" class="theme-toggle" aria-label="Přepnout motiv">🌓</button>
         <header>
             <div class="logo">🚇 Kdy to jede?</div>
             <h1 id="station-title" class="hidden">Výběr stanice</h1>
@@ -33,7 +34,8 @@
                 </div>
                 <div class="actions" style="margin-top:2rem; text-align:center;">
                     <button id="refresh-btn"
-                        style="background:rgba(255,255,255,0.1); color:#fff; font-size:0.9rem; padding:0.5rem 1rem;">Obnovit
+                        style="background:rgba(0,0,0,0.05); color:var(--text-secondary); border:1px solid rgba(0,0,0,0.1); font-size:0.95rem; padding:0.6rem 1.2rem; cursor:pointer;">&#8635;
+                        Obnovit
                         data</button>
                 </div>
             </div>

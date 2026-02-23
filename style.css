@@ -1,15 +1,16 @@
 :root {
-    --bg-color: #0f172a;
-    --card-bg: rgba(30, 41, 59, 0.7);
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
+    --bg-color: #f1f5f9;
+    --card-bg: rgba(255, 255, 255, 0.85);
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
     --metro-a: #00A562;
     --metro-b: #F7B200;
     --metro-c: #ef4444;
     --accent: #ef4444;
     /* Default accent */
     --accent-hover: #dc2626;
-    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(0, 0, 0, 0.08);
+    /* Darker border for light mode */
 }
 
 * {
@@ -20,7 +21,8 @@
 
 body {
     font-family: 'Outfit', sans-serif;
-    background: linear-gradient(135deg, var(--bg-color), #000000);
+    background: linear-gradient(135deg, var(--bg-color), #cbd5e1);
+    /* Lighter gradient */
     color: var(--text-primary);
     min-height: 100vh;
     display: flex;
@@ -53,10 +55,50 @@ header {
 header h1 {
     font-size: 3.5rem;
     font-weight: 700;
-    background: linear-gradient(to right, #fff, var(--metro-c));
+    background: linear-gradient(to right, #334155, var(--metro-c));
+    /* Darker start */
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     transition: background 0.5s;
+}
+
+body.dark-theme header h1 {
+    background: linear-gradient(to right, #fff, var(--metro-c));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* --- Theme Toggle --- */
+.theme-toggle {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: var(--card-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    cursor: pointer;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    z-index: 100;
+    padding: 0;
+}
+
+.theme-toggle:hover {
+    transform: translateY(-2px) rotate(15deg);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    background: var(--card-bg);
+    /* override default button hover */
 }
 
 /* --- Search --- */
@@ -95,10 +137,10 @@ header h1 {
     position: absolute;
     top: 0;
     left: 0;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.9);
     /* Wrapper má viditelný bg */
     border: 1px solid transparent;
-    color: rgba(255, 255, 255, 0.4);
+    color: rgba(0, 0, 0, 0.3);
     /* Vyhledávaný zbytek textu (šedě) */
     pointer-events: none;
     /* Ignoruje klikání na pozadí */
@@ -106,12 +148,17 @@ header h1 {
     z-index: 1;
 }
 
+body.dark-theme #station-search-autocomplete {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.4);
+}
+
 #station-search {
     position: relative;
     background: transparent;
     /* Hlavní input přes to má průhledné pozadí */
     border: 1px solid var(--glass-border);
-    color: #fff;
+    color: var(--text-primary);
     z-index: 2;
 }
 
@@ -122,14 +169,20 @@ header h1 {
     padding: 1.5rem 2rem;
 }
 
-.search-container.initial-state #station-search-autocomplete {
+body.dark-theme .search-container.initial-state #station-search-autocomplete {
     background: rgba(255, 255, 255, 0.12);
     box-shadow: 0 16px 32px 0 rgba(0, 0, 0, 0.5);
 }
 
+.search-container.initial-state #station-search-autocomplete {
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 16px 32px 0 rgba(0, 0, 0, 0.12);
+    /* Lighter shadow */
+}
+
 #station-search:focus {
-    border-color: rgba(255, 255, 255, 0.5);
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+    border-color: rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
 }
 
 #search-results {
@@ -142,7 +195,7 @@ header h1 {
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
     border-radius: 12px;
-    box-shadow: 0 16px 32px 0 rgba(0, 0, 0, 0.5);
+    box-shadow: 0 16px 32px 0 rgba(0, 0, 0, 0.12);
     list-style: none;
     max-height: 250px;
     overflow-y: auto;
@@ -161,7 +214,8 @@ header h1 {
 }
 
 .search-result-item:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.05);
+    /* Subtle dark hover for light theme */
 }
 
 /* -------------- */
@@ -173,7 +227,7 @@ header h1 {
     border: 1px solid var(--glass-border);
     border-radius: 20px;
     padding: 2.5rem;
-    box-shadow: 0 16px 32px 0 rgba(0, 0, 0, 0.5);
+    box-shadow: 0 16px 32px 0 rgba(0, 0, 0, 0.12);
 }
 
 button {
@@ -225,11 +279,13 @@ button:hover {
     border-radius: 20px;
     overflow: hidden;
     backdrop-filter: blur(12px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    /* Lighter shadow */
 }
 
 .direction-header {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(0, 0, 0, 0.03);
+    /* Subtle dark bg for header */
     padding: 1.2rem;
     text-align: center;
     font-weight: 700;
@@ -254,20 +310,21 @@ button:hover {
     justify-content: space-between;
     align-items: center;
     padding: 1.2rem;
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(0, 0, 0, 0.03);
+    /* Dark transp bg for item */
     border-radius: 12px;
     transition: transform 0.2s, background 0.2s;
 }
 
 .departure-item:hover {
     transform: translateX(5px);
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.06);
 }
 
 .time-left {
     font-size: 2rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--text-primary);
     text-align: right;
     font-variant-numeric: tabular-nums;
     min-width: 120px;
@@ -297,14 +354,16 @@ button:hover {
     bottom: 2rem;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(255, 255, 255, 0.9);
     padding: 1rem 2rem;
     border-radius: 30px;
-    color: #fff;
+    color: var(--text-primary);
     font-weight: 600;
     z-index: 1000;
     backdrop-filter: blur(10px);
     border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    /* added shadow to elevate loader on light */
 }
 
 footer {
@@ -349,4 +408,40 @@ footer {
     100% {
         opacity: 0.8;
     }
+}
+
+/* --- Dark Theme Overrides --- */
+body.dark-theme {
+    --bg-color: #0f172a;
+    --card-bg: rgba(30, 41, 59, 0.7);
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --glass-border: rgba(255, 255, 255, 0.1);
+    background: linear-gradient(135deg, var(--bg-color), #000000);
+}
+
+body {
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+body.dark-theme .direction-header {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+body.dark-theme .search-result-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-theme .departure-item {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+body.dark-theme .departure-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+body.dark-theme .loader {
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    box-shadow: none;
 }

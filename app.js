@@ -10,6 +10,7 @@ const SEARCH_INPUT = document.getElementById('station-search');
 const AUTOCOMPLETE_INPUT = document.getElementById('station-search-autocomplete');
 const SEARCH_RESULTS = document.getElementById('search-results');
 const STATION_TITLE = document.getElementById('station-title');
+const THEME_TOGGLE = document.getElementById('theme-toggle');
 
 let fetchInterval = null;
 let currentStation = null; // Prázdná výchozí stanice
@@ -23,6 +24,7 @@ const lineC = ["Letňany", "Prosek", "Střížkov", "Ládví", "Kobylisy", "Nád
 const uniqueStations = [...new Set([...lineA, ...lineB, ...lineC])].sort((a, b) => a.localeCompare(b, 'cs'));
 
 function init() {
+    setupTheme();
     setupSearch();
 
     // Auto-refresh every 20 seconds only if we selected a station
@@ -35,6 +37,19 @@ function init() {
     setInterval(() => {
         if (currentStation) updateCountdown();
     }, 1000);
+}
+
+function setupTheme() {
+    const savedTheme = localStorage.getItem('golemio_theme') || 'light';
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-theme');
+    }
+
+    THEME_TOGGLE.addEventListener('click', () => {
+        document.body.classList.toggle('dark-theme');
+        const isDark = document.body.classList.contains('dark-theme');
+        localStorage.setItem('golemio_theme', isDark ? 'dark' : 'light');
+    });
 }
 
 function setupSearch() {
