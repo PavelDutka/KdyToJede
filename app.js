@@ -240,9 +240,9 @@ function updateCountdown() {
         if (diffSecs === 0) {
             el.innerHTML = `<span class="highlighted" style="color:${colorVar}">Nyní</span>`;
         } else if (mins === 0) {
-            el.innerHTML = `<span style="color:${colorVar};">${secsStr} <span>s</span></span>`;
+            el.innerHTML = `<span style="color:${colorVar}">${secsStr}</span> <span class="unit">s</span>`;
         } else {
-            el.innerHTML = `${mins} <span>m</span> ${secsStr} <span>s</span>`;
+            el.innerHTML = `${mins} <span class="unit">m</span> ${secsStr} <span class="unit">s</span>`;
         }
     });
 }

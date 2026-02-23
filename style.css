@@ -229,7 +229,7 @@ button:hover {
     min-width: 120px;
 }
 
-.time-left span {
+.time-left .unit {
     font-size: 1rem;
     font-weight: 400;
     color: var(--text-secondary);
