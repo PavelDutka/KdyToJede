@@ -223,6 +223,7 @@ async function fetchDepartures() {
         const url = new URL('https://api.golemio.cz/v2/pid/departureboards');
         url.searchParams.append('names', currentStation);
         url.searchParams.append('limit', '50'); // Zvýšit limit kvůli jiným módům dopravy (bus/tram)
+        url.searchParams.append('minutesBefore', '1'); // Zachytí i vlaky těsně po odjezdu (pro "Právě ve stanici")
 
         const response = await fetch(url.toString(), {
             headers: {
@@ -267,9 +268,18 @@ function getDirectionName(station, headsign, routeShortName) {
 }
 
 function renderDepartures(departures) {
+    const now = new Date();
+
     // Filtrovat pouze linky metra nazvané "A", "B", "C"
     // Golemio u metra casto vraci route.short_name jako 'A', 'B', 'C'
-    const metroDepartures = departures.filter(dep => ['A', 'B', 'C'].includes(dep.route.short_name));
+    const metroDepartures = departures.filter(dep => {
+        if (!['A', 'B', 'C'].includes(dep.route.short_name)) return false;
+
+        // Zobrazíme pouze vlaky, které buď přijedou, nebo odjely max před 45 sekundami
+        const timeStr = dep.departure_timestamp.predicted || dep.departure_timestamp.scheduled;
+        const diffSecs = Math.floor((new Date(timeStr) - now) / 1000);
+        return diffSecs > -45;
+    });
 
     // Group by direction (not just headsign) and limit to first 5 departures per group
     const directionsGroups = {};
@@ -370,19 +380,19 @@ function updateCountdown() {
         const colorVar = el.getAttribute('data-color') || 'var(--metro-c)';
 
         let diffSecs = Math.floor((departureTime - now) / 1000);
-        if (diffSecs < 0) diffSecs = 0;
 
-        let mins = Math.floor(diffSecs / 60);
-        let secs = diffSecs % 60;
-
-        const secsStr = secs.toString().padStart(2, '0');
-
-        if (diffSecs === 0) {
-            el.innerHTML = `<span class="highlighted" style="color:${colorVar}">Nyní</span>`;
-        } else if (mins === 0) {
-            el.innerHTML = `<span style="color:${colorVar}">${secsStr}</span> <span class="unit">s</span>`;
+        if (diffSecs <= 0) {
+            el.innerHTML = `<span class="highlighted" style="font-size:1.1rem; line-height:1.2; display:inline-block; color:${colorVar}">Právě ve<br/>stanici</span>`;
         } else {
-            el.innerHTML = `${mins} <span class="unit">m</span> ${secsStr} <span class="unit">s</span>`;
+            let mins = Math.floor(diffSecs / 60);
+            let secs = diffSecs % 60;
+            const secsStr = secs.toString().padStart(2, '0');
+
+            if (mins === 0) {
+                el.innerHTML = `<span style="color:${colorVar}">${secsStr}</span> <span class="unit">s</span>`;
+            } else {
+                el.innerHTML = `${mins} <span class="unit">m</span> ${secsStr} <span class="unit">s</span>`;
+            }
         }
     });
 }
