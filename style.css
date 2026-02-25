@@ -87,7 +87,7 @@ header {
     font-weight: 800;
     letter-spacing: -2px;
     margin-bottom: 2vh;
-    background: linear-gradient(to right, var(--metro-a), var(--metro-c));
+    background: linear-gradient(to right, #2563eb, #06b6d4);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -383,6 +383,38 @@ button:hover {
 
     header h1 {
         font-size: 2.5rem;
+    }
+
+    /* Responzivní zmenšení obří Landing Page */
+    .hero-image.initial-state {
+        max-height: 120px;
+        margin-bottom: 0.5rem;
+    }
+
+    .logo.initial-state {
+        font-size: 2.5rem;
+    }
+
+    .search-container.initial-state {
+        margin-top: 1.5rem;
+    }
+
+    .search-container.initial-state #station-search,
+    .search-container.initial-state #station-search-autocomplete {
+        font-size: 1.1rem;
+        padding: 1.2rem 3rem;
+    }
+
+    .search-container.initial-state .search-icon {
+        left: 1rem;
+        width: 24px;
+        height: 24px;
+    }
+
+    .search-container.initial-state .search-arrow {
+        right: 1rem;
+        width: 28px;
+        height: 28px;
     }
 }
 

@@ -167,7 +167,7 @@ function resetToHome() {
     // Vycisteni pola
     SEARCH_INPUT.value = '';
     AUTOCOMPLETE_INPUT.value = '';
-    SEARCH_INPUT.placeholder = 'Vyhledejte stanici metra (např. Muzeum)...';
+    SEARCH_INPUT.placeholder = 'Vyhledejte stanici metra...';
 }
 
 document.getElementById('main-logo').addEventListener('click', (e) => {
