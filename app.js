@@ -275,10 +275,10 @@ function renderDepartures(departures) {
     const metroDepartures = departures.filter(dep => {
         if (!['A', 'B', 'C'].includes(dep.route.short_name)) return false;
 
-        // Zobrazíme pouze vlaky, které buď přijedou, nebo odjely max před 45 sekundami
+        // Filtr na vlaky: po odjezdu je držíme v datech už jen 5s (zbytek řeší ihned odpočet)
         const timeStr = dep.departure_timestamp.predicted || dep.departure_timestamp.scheduled;
         const diffSecs = Math.floor((new Date(timeStr) - now) / 1000);
-        return diffSecs > -45;
+        return diffSecs > -5;
     });
 
     // Group by direction (not just headsign) and limit to first 5 departures per group
@@ -342,8 +342,14 @@ function renderDepartures(departures) {
 
 function renderList(container, trips, colorVar, lineShort) {
     trips.forEach(trip => {
-        const timeStr = trip.departure_timestamp.predicted || trip.departure_timestamp.scheduled;
-        const departureTime = new Date(timeStr);
+        const departureTimeStr = trip.departure_timestamp.predicted || trip.departure_timestamp.scheduled;
+
+        let arrivalTimeStr = departureTimeStr;
+        if (trip.arrival_timestamp && (trip.arrival_timestamp.predicted || trip.arrival_timestamp.scheduled)) {
+            arrivalTimeStr = trip.arrival_timestamp.predicted || trip.arrival_timestamp.scheduled;
+        }
+
+        const departureTime = new Date(departureTimeStr);
         const timeDisplay = departureTime.toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' });
 
         // Zpoždění
@@ -367,7 +373,7 @@ function renderList(container, trips, colorVar, lineShort) {
                 <div style="font-weight: 600; font-size: 1.1rem; color: ${colorVar}">Metro ${lineShort} ${detailHeadsign}</div>
                 <div class="real-time">${timeDisplay} ${delayDisplay}</div>
             </div>
-            <div class="time-left" data-time="${timeStr}" data-color="${colorVar}">...</div>
+            <div class="time-left" data-arrival="${arrivalTimeStr}" data-time="${departureTimeStr}" data-color="${colorVar}">...</div>
         `;
         container.appendChild(li);
     });
@@ -378,14 +384,29 @@ function updateCountdown() {
     document.querySelectorAll('.time-left[data-time]').forEach(el => {
         const departureTime = new Date(el.getAttribute('data-time'));
         const colorVar = el.getAttribute('data-color') || 'var(--metro-c)';
+        const arrivalTimeAttr = el.getAttribute('data-arrival');
+        const arrivalTime = arrivalTimeAttr ? new Date(arrivalTimeAttr) : departureTime;
 
-        let diffSecs = Math.floor((departureTime - now) / 1000);
+        let diffDepartureSecs = Math.floor((departureTime - now) / 1000);
+        let diffArrivalSecs = Math.floor((arrivalTime - now) / 1000);
 
-        if (diffSecs <= 0) {
+        // Pokud API vrací shodný čas příjezdu i odjezdu (nebo příjezd chyběl),
+        // odhadneme pobyt na 30 sekund ve stanici
+        if (arrivalTime.getTime() === departureTime.getTime()) {
+            diffArrivalSecs = diffDepartureSecs - 30;
+        }
+
+        if (diffDepartureSecs < 0) {
+            // Vlak už odjel - skryjeme okamžitě
+            const li = el.closest('li');
+            if (li) li.style.display = 'none';
+        } else if (diffArrivalSecs <= 0) {
+            // Vlak právě přijel (stanicuje)
             el.innerHTML = `<span class="highlighted" style="font-size:1.1rem; line-height:1.2; display:inline-block; color:${colorVar}">Právě ve<br/>stanici</span>`;
         } else {
-            let mins = Math.floor(diffSecs / 60);
-            let secs = diffSecs % 60;
+            // Vlak ještě nepřijel - ukazujeme odpočet DO ODJEZDU
+            let mins = Math.floor(diffDepartureSecs / 60);
+            let secs = diffDepartureSecs % 60;
             const secsStr = secs.toString().padStart(2, '0');
 
             if (mins === 0) {
