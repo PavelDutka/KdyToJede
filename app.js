@@ -1,6 +1,4 @@
-// Zde je API klíč napevno, jelikož se jedná o privátní repozitář
-const apiKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NDg0NywiaWF0IjoxNzcxODY2MjA4LCJleHAiOjExNzcxODY2MjA4LCJpc3MiOiJnb2xlbWlvIiwianRpIjoiYTRkNWNmOTItMDQzMC00MjZiLTlhNWMtMTk2YmNiYzlkZThkIn0.lIpLQpWR-AVVgjYTqN1jxuzCTQ8Mx_3Cg3Q03adTSOA';
-
+// API klíč přesunut na backend do Netlify functions (viz netlify/functions/departures.js)
 const DATA_CONTAINER = document.getElementById('data-container');
 const DIRECTIONS_WRAPPER = document.getElementById('directions-wrapper');
 const LOADER = document.getElementById('loader');
@@ -220,16 +218,12 @@ async function fetchDepartures() {
     LOADER.classList.remove('hidden');
 
     try {
-        const url = new URL('https://api.golemio.cz/v2/pid/departureboards');
+        const url = new URL('/.netlify/functions/departures', window.location.origin);
         url.searchParams.append('names', currentStation);
         url.searchParams.append('limit', '50'); // Zvýšit limit kvůli jiným módům dopravy (bus/tram)
         url.searchParams.append('minutesBefore', '1'); // Zachytí i vlaky těsně po odjezdu (pro "Právě ve stanici")
 
-        const response = await fetch(url.toString(), {
-            headers: {
-                'X-Access-Token': apiKey
-            }
-        });
+        const response = await fetch(url.toString());
 
         if (!response.ok) {
             throw new Error('Chyba při stahování dat. Status: ' + response.status);
